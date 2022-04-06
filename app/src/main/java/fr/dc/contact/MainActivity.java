@@ -1,5 +1,9 @@
 package fr.dc.contact;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -17,6 +21,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,17 +32,28 @@ import fr.dc.contact.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 101;
-    public ActivityMainBinding ui;
+    private ActivityMainBinding ui;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(ui.getRoot());
+        ui.imageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ui.imageView.setVisibility(View.VISIBLE);
+                if(checkAndRequestPermissions(MainActivity.this)){
+                    chooseImage(MainActivity.this);
+                }
+            }
+        });
+        ui.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-        if(checkAndRequestPermissions(MainActivity.this)){
-            chooseImage(MainActivity.this);
-        }
+            }
+        });
 
     }
     // function to let's the user to choose image from camera or gallery
@@ -52,12 +68,12 @@ public class MainActivity extends AppCompatActivity {
                 if(optionsMenu[i].equals("Take Photo")){
                     // Open the camera and get the photo
                     Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
+                    someActivityResultLauncher.launch(takePicture);
                 }
                 else if(optionsMenu[i].equals("Choose from Gallery")){
                     // choose from  external storage
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto , 1);
+                    someActivityResultLauncher.launch(pickPhoto);;
                 }
                 else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
@@ -141,4 +157,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                    }
+                }
+            });
+
 }

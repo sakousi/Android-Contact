@@ -46,19 +46,27 @@
         android:hint="Birthdate"
         android:inputType="date" />
 
+    <Button
+        android:id="@+id/imageBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add image"
+        android:layout_gravity="center"/>
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:scaleType="centerInside"
+        android:visibility="gone"
         tools:srcCompat="@tools:sample/avatars" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Submit"
         android:layout_gravity="center"/>
 
 </LinearLayout>
