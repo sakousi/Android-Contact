@@ -68,12 +68,12 @@ public class MainActivity extends AppCompatActivity {
                 if(optionsMenu[i].equals("Take Photo")){
                     // Open the camera and get the photo
                     Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    someActivityResultLauncher.launch(takePicture);
+                    pictureActivityResultLauncher.launch(takePicture);
                 }
                 else if(optionsMenu[i].equals("Choose from Gallery")){
                     // choose from  external storage
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    someActivityResultLauncher.launch(pickPhoto);;
+                    galleryActivityResultLauncher.launch(pickPhoto);
                 }
                 else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
@@ -126,38 +126,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED) {
-            switch (requestCode) {
-                case 0:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        ui.imageView.setImageBitmap(selectedImage);
-                    }
-                    break;
-                case 1:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                        if (selectedImage != null) {
-                            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                            if (cursor != null) {
-                                cursor.moveToFirst();
-                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                String picturePath = cursor.getString(columnIndex);
-                                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-                                ui.imageView.setImageBitmap(bitmap);
-                                cursor.close();
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+
+    ActivityResultLauncher<Intent> pictureActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -165,6 +135,37 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // There are no request codes
                         Intent data = result.getData();
+                        if (data != null) {
+                            Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
+                            ui.imageView.setImageBitmap(selectedImage);
+                        }
+                    }
+                }
+            });
+
+    ActivityResultLauncher<Intent> galleryActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Uri selectedImage = data.getData();
+                            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                            if (selectedImage != null) {
+                                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                                if (cursor != null) {
+                                    cursor.moveToFirst();
+                                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                                    String picturePath = cursor.getString(columnIndex);
+                                    Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+                                    ui.imageView.setImageBitmap(bitmap);
+                                    cursor.close();
+                                }
+                            }
+                        }
                     }
                 }
             });
