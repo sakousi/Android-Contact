@@ -28,10 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.dc.contact.databinding.ActivityMainBinding;
+import fr.dc.contact.model.Person;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String KEY_CONTACT = "CONTACT";
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 101;
+    private static final String TAG = "TAG";
     private ActivityMainBinding ui;
     
     @Override
@@ -42,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         ui.imageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ui.imageView.setVisibility(View.VISIBLE);
                 if(checkAndRequestPermissions(MainActivity.this)){
                     chooseImage(MainActivity.this);
                 }
@@ -51,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
         ui.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Person contact = new Person(ui.firstName.getText().toString(), ui.lastName.getText().toString());
+                contact.setEmail(ui.emailAddress.getText().toString());
+                contact.setPhonenumber(ui.phoneNumber.getText().toString());
+                contact.setBirthdate(ui.birthdate.getText().toString());
+                contact.setProfile(ui.imageView);
+
+                Intent i = new Intent(MainActivity.this, ContactActivity.class);
+                i.putExtra(KEY_CONTACT, contact);
+
 
             }
         });
@@ -138,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                         if (data != null) {
                             Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
                             ui.imageView.setImageBitmap(selectedImage);
+                            ui.imageView.setVisibility(View.VISIBLE);
                         }
                     }
                 }
@@ -162,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                                     String picturePath = cursor.getString(columnIndex);
                                     Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
                                     ui.imageView.setImageBitmap(bitmap);
+                                    ui.imageView.setVisibility(View.VISIBLE);
                                     cursor.close();
                                 }
                             }
