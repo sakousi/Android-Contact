@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Contact</string>
+    <string name="action_settings">Paramàtre</string>
+
+    <string name="lastname">Prénom</string>
+    <string name="firstname">Nom</string>
+    <string name="email">Addresse Email</string>
+    <string name="phone">Numero de téléphone</string>
+    <string name="birthdate">Birthdate</string>
+    <string name="add_image">Ajouter une image</string>
+    <string name="submit">Envoyer</string>
+</resources>

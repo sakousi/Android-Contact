@@ -1,13 +1,5 @@
 package fr.dc.contact;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +16,14 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +32,14 @@ import fr.dc.contact.model.Person;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String KEY_CONTACT = "CONTACT";
+    public static final String KEY_CONTACT = "CONTACT";
+    public static final String KEY_PHOTO = "PHOTO";
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 101;
     private static final String TAG = "TAG";
     private ActivityMainBinding ui;
-    
+    private Person contact = new Person();
+    private Bitmap photo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         ui.imageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(checkAndRequestPermissions(MainActivity.this)){
+                if (checkAndRequestPermissions(MainActivity.this)) {
                     chooseImage(MainActivity.this);
                 }
             }
@@ -53,46 +56,50 @@ public class MainActivity extends AppCompatActivity {
         ui.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Person contact = new Person(ui.firstName.getText().toString(), ui.lastName.getText().toString());
+                contact.setFirstname(ui.firstName.getText().toString());
+                contact.setLastname(ui.lastName.getText().toString());
                 contact.setEmail(ui.emailAddress.getText().toString());
                 contact.setPhonenumber(ui.phoneNumber.getText().toString());
                 contact.setBirthdate(ui.birthdate.getText().toString());
-                contact.setProfile(ui.imageView);
 
                 Intent i = new Intent(MainActivity.this, ContactActivity.class);
                 i.putExtra(KEY_CONTACT, contact);
+                if (photo != null){
+                    i.putExtra(KEY_PHOTO, photo);
+                }
+                startActivity(i);
 
 
             }
         });
 
     }
+
     // function to let's the user to choose image from camera or gallery
-    private void chooseImage(Context context){
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
+    private void chooseImage(Context context) {
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"}; // create a menuOption Array
         // create a dialog for showing the optionsMenu
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         // set the items in builder
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(optionsMenu[i].equals("Take Photo")){
+                if (optionsMenu[i].equals("Take Photo")) {
                     // Open the camera and get the photo
                     Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                     pictureActivityResultLauncher.launch(takePicture);
-                }
-                else if(optionsMenu[i].equals("Choose from Gallery")){
+                } else if (optionsMenu[i].equals("Choose from Gallery")) {
                     // choose from  external storage
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     galleryActivityResultLauncher.launch(pickPhoto);
-                }
-                else if (optionsMenu[i].equals("Exit")) {
+                } else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
                 }
             }
         });
         builder.show();
     }
+
     // function to check permission
     public static boolean checkAndRequestPermissions(final Activity context) {
         int WExtstorePermission = ContextCompat.checkSelfPermission(context,
@@ -115,9 +122,10 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
     // Handled permission Result
     @Override
-    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_ID_MULTIPLE_PERMISSIONS:
@@ -147,8 +155,8 @@ public class MainActivity extends AppCompatActivity {
                         // There are no request codes
                         Intent data = result.getData();
                         if (data != null) {
-                            Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                            ui.imageView.setImageBitmap(selectedImage);
+                            photo = (Bitmap) data.getExtras().get("data");
+                            ui.imageView.setImageBitmap(photo);
                             ui.imageView.setVisibility(View.VISIBLE);
                         }
                     }
@@ -172,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
                                     cursor.moveToFirst();
                                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                                     String picturePath = cursor.getString(columnIndex);
-                                    Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-                                    ui.imageView.setImageBitmap(bitmap);
+                                    photo = BitmapFactory.decodeFile(picturePath);
+                                    ui.imageView.setImageBitmap(photo);
                                     ui.imageView.setVisibility(View.VISIBLE);
                                     cursor.close();
                                 }
@@ -182,5 +190,4 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-
 }
